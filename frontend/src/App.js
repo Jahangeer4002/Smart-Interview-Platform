@@ -1,14 +1,16 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from './components/ui/sonner';
-import './App.css';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Candidates from './pages/Candidates';
-import Interviews from './pages/Interviews';
-import Feedback from './pages/Feedback';
-import Ranking from './pages/Ranking';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "./components/ui/sonner";
+import "./App.css";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Candidates from "./pages/Candidates";
+import Interviews from "./pages/Interviews";
+import Feedback from "./pages/Feedback";
+import Ranking from "./pages/Ranking";
+import HRList from "./pages/HRsList";
+import InterviewersList from "./pages/InterviewersList";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 const PrivateRoute = ({ children }) => {
   const { user } = useAuth();
@@ -62,6 +64,8 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route path="/hrs" element={<HRList />} />
+          <Route path="/interviewers" element={<InterviewersList />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -17,7 +17,6 @@ import requests
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request as GoogleRequest
 from googleapiclient.discovery import build
-from emergentintegrations.llm.chat import LlmChat, UserMessage
 import asyncio
 import statistics
 
@@ -391,7 +390,8 @@ async def google_calendar_callback(code: str, state: str):
         {"$set": {"google_tokens": token_resp}}
     )
     
-    return RedirectResponse(url="/?calendar_connected=true")
+    return RedirectResponse(url="http://localhost:3000/?calendar_connected=true")
+
 
 async def get_google_credentials(user_email: str):
     user = await db.users.find_one({"email": user_email}, {"_id": 0})
@@ -516,14 +516,22 @@ async def schedule_interview(schedule_data: InterviewSchedule, current_user: dic
     scheduled_time = datetime.fromisoformat(first_slot['start'].replace('Z', '+00:00'))
     
     # Create interview record
+    # interview = Interview(
+    #     candidate_id=candidate['id'],
+    #     candidate_name=candidate['name'],
+    #     interviewer_id=interviewer['id'],
+    #     interviewer_name=interviewer['full_name'],
+    #     scheduled_at=scheduled_time,
+    #     meeting_link=f"https://meet.google.com/{str(uuid.uuid4())[:12]}"
+    # )
     interview = Interview(
-        candidate_id=candidate['id'],
-        candidate_name=candidate['name'],
-        interviewer_id=interviewer['id'],
-        interviewer_name=interviewer['full_name'],
-        scheduled_at=scheduled_time,
-        meeting_link=f"https://meet.google.com/{str(uuid.uuid4())[:12]}"
-    )
+    candidate_id=candidate['id'],
+    candidate_name=candidate['name'],
+    interviewer_id=interviewer['id'],
+    interviewer_name=interviewer['full_name'],
+    scheduled_at=scheduled_time,
+    meeting_link=None
+)
     
     # Try to create Google Calendar event
     try:
@@ -560,8 +568,16 @@ async def schedule_interview(schedule_data: InterviewSchedule, current_user: dic
         ).execute()
         
         interview.google_event_id = created_event['id']
-        if created_event.get('hangoutLink'):
-            interview.meeting_link = created_event['hangoutLink']
+        # if created_event.get('hangoutLink'):
+        #     interview.meeting_link = created_event['hangoutLink']
+
+        # Extract Google Meet link safely
+        if created_event.get("hangoutLink"):
+            interview.meeting_link = created_event["hangoutLink"]
+        elif created_event.get("conferenceData"):
+            entry_points = created_event["conferenceData"].get("entryPoints", [])
+            if entry_points:
+                interview.meeting_link = entry_points[0].get("uri")
     
     except Exception as e:
         logger.warning(f"Could not create Google Calendar event: {str(e)}")
@@ -643,7 +659,7 @@ async def analyze_sentiment(text: str) -> Dict[str, Any]:
 
 @api_router.post("/feedback", response_model=Feedback)
 async def submit_feedback(feedback_data: FeedbackCreate, current_user: dict = Depends(get_current_user)):
-    await require_role(current_user, [UserRole.INTERVIEWER, UserRole.ADMIN])
+    await require_role(current_user, [UserRole.INTERVIEWER, UserRole.ADMIN,UserRole.HR])
     
     # Validate interview exists
     interview = await db.interviews.find_one({"id": feedback_data.interview_id}, {"_id": 0})
@@ -707,6 +723,41 @@ async def get_candidate_feedback(candidate_id: str, current_user: dict = Depends
         if isinstance(f.get('submitted_at'), str):
             f['submitted_at'] = datetime.fromisoformat(f['submitted_at'])
     return feedbacks
+
+
+# ============= DELETE INTERVIEW (ADMIN ONLY) =============
+
+@api_router.delete("/interviews/{interview_id}")
+async def delete_interview(interview_id: str, current_user: dict = Depends(get_current_user)):
+    
+    # Allow only Admin
+    if current_user.get("role", "").upper() != "ADMIN":
+        raise HTTPException(status_code=403, detail="Only admin can delete interviews")
+
+    # Find interview in database
+    interview = await db.interviews.find_one({"id": interview_id})
+    if not interview:
+        raise HTTPException(status_code=404, detail="Interview not found")
+
+    # If interview has Google Calendar event, delete it
+    if interview.get("calendar_event_id"):
+        try:
+            creds = await get_google_credentials(interview["interviewer_email"])
+            service = build('calendar', 'v3', credentials=creds)
+
+            service.events().delete(
+                calendarId='primary',
+                eventId=interview["calendar_event_id"]
+            ).execute()
+
+        except Exception as e:
+            logger.error(f"Failed to delete Google Calendar event: {str(e)}")
+
+    # Delete interview from MongoDB
+    await db.interviews.delete_one({"id": interview_id})
+
+    return {"message": "Interview deleted successfully"}
+
 
 # ============= BIAS DETECTION =============
 
@@ -801,13 +852,82 @@ async def get_candidate_rankings(current_user: dict = Depends(get_current_user))
 
 # ============= USERS ROUTE =============
 
+# ============= USERS ROUTE =============
+
 @api_router.get("/users/interviewers")
 async def get_interviewers(current_user: dict = Depends(get_current_user)):
+
+    # ✅ Allow ADMIN + HR
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.HR, UserRole.INTERVIEWER]:
+        raise HTTPException(status_code=403, detail="Not allowed")
+
     interviewers = await db.users.find(
         {"role": UserRole.INTERVIEWER},
         {"_id": 0, "hashed_password": 0, "google_tokens": 0}
     ).to_list(1000)
+
     return interviewers
+
+
+@api_router.get("/users/hrs")
+async def get_hrs(current_user: dict = Depends(get_current_user)):
+    hrs = await db.users.find(
+        {"role": "HR"},
+        {"_id": 0, "hashed_password": 0, "google_tokens": 0}
+    ).to_list(1000)
+
+    return hrs
+
+
+@api_router.delete("/users/{user_id}")
+async def delete_user(user_id: str, current_user: dict = Depends(get_current_user)):
+
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can delete users")
+
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user["role"] == UserRole.ADMIN:
+        raise HTTPException(status_code=400, detail="Cannot delete admin")
+
+    await db.users.delete_one({"id": user_id})
+
+    return {"message": "User deleted successfully"}
+
+# ============= ADMIN USER MANAGEMENT =============
+
+@api_router.get("/users/hr")
+async def get_hr_users(current_user: dict = Depends(get_current_user)):
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can view HRs")
+
+    hrs = await db.users.find(
+        {"role": UserRole.HR},
+        {"_id": 0, "hashed_password": 0, "google_tokens": 0}
+    ).to_list(1000)
+
+    return hrs
+
+
+@api_router.delete("/users/{user_id}")
+async def delete_user(user_id: str, current_user: dict = Depends(get_current_user)):
+
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can delete users")
+
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Prevent deleting admin
+    if user["role"] == UserRole.ADMIN:
+        raise HTTPException(status_code=400, detail="Cannot delete admin")
+
+    await db.users.delete_one({"id": user_id})
+
+    return {"message": "User deleted successfully"}
 
 # ============= ROOT ROUTE =============
 
