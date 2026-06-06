@@ -121,13 +121,13 @@ Context API / Redux
 
 Backend
 
-Spring Boot
+Python
+
+FastAPI
 
 REST APIs
 
-Spring Security
-
-Keycloak Integration
+JWT Authentication
 
 Database
 
