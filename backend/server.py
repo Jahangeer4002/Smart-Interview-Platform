@@ -20,6 +20,11 @@ from googleapiclient.discovery import build
 import asyncio
 import statistics
 
+FRONTEND_URL = os.getenv(
+    "FRONTEND_URL",
+    "https://smart-interview-platform-seven.vercel.app"
+)
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
@@ -390,7 +395,7 @@ async def google_calendar_callback(code: str, state: str):
         {"$set": {"google_tokens": token_resp}}
     )
     
-    return RedirectResponse(url="http://localhost:3000/?calendar_connected=true")
+    return RedirectResponse(url=f"{FRONTEND_URL}/?calendar_connected=true")
 
 
 async def get_google_credentials(user_email: str):
