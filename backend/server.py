@@ -951,6 +951,9 @@ app.include_router(api_router)
 
 app.add_middleware(
     CORSMiddleware,
+       allow_origins=[
+        "https://smart-interview-platform-seven.vercel.app"
+    ],
     allow_credentials=True,
     allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
     allow_methods=["*"],
