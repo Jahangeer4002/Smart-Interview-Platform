@@ -1,204 +1,236 @@
-🚀 Smart Interview Scheduling & Evaluation Platform
-A full-stack recruitment automation platform that streamlines interview scheduling, candidate evaluation, and hiring decisions using AI-powered sentiment analysis, automated ranking, and bias detection. The platform integrates Google Calendar for scheduling and provides secure role-based access control for Admins, HRs, and Interviewers.
+# Smart Interview Scheduling & Evaluation Platform
 
-📌 Features
-🔐 Authentication & Authorization
+## Overview
 
-Keycloak-based authentication
+The Smart Interview Scheduling & Evaluation Platform is a full-stack web application designed to streamline the recruitment process. The platform enables HR teams and interviewers to manage candidates, schedule interviews, integrate with Google Calendar, generate Google Meet links, collect interview feedback, and rank candidates based on performance.
 
-JWT-secured APIs
+## Features
 
-Role-Based Access Control (RBAC)
+### Authentication & Authorization
 
-Email verification for new user registration
+* JWT-based authentication
+* Role-based access control
 
-Password reset functionality
+  * Admin
+  * HR
+  * Interviewer
+* Secure user registration and login
 
-👑 Admin Module
+### Candidate Management
 
-Manage HR and Interviewer accounts
+* Add, update, view, and delete candidates
+* Track candidate information and interview status
 
-Assign and update roles
+### Interview Scheduling
 
-View system-wide analytics
+* Schedule interviews with candidates
+* Google Calendar integration
+* Automatic Google Meet link generation
+* Interview availability management
 
-Monitor bias detection reports
+### Feedback & Evaluation
 
-Configure scoring settings
+* Submit interview feedback
+* Store interviewer evaluations
+* Candidate performance tracking
+* Automated candidate ranking
 
-Access audit logs
+### Dashboard
 
-👩‍💼 HR Module
+* HR dashboard
+* Interviewer dashboard
+* Candidate ranking system
+* Interview management interface
 
-Add, update, and delete candidates
+---
 
-Upload candidate resume links
+## Tech Stack
 
-Assign interviewers
+### Frontend
 
-Schedule interviews automatically
+* React.js
+* Axios
+* Context API
+* React Router
+* CSS
 
-View candidate rankings
+### Backend
 
-Track interview status
+* FastAPI
+* Python
+* JWT Authentication
+* Google Calendar API
+* Google OAuth 2.0
 
-Make hiring decisions
+### Database
 
-👨‍💻 Interviewer Module
+* MongoDB
+* Motor (Async MongoDB Driver)
 
-View assigned interviews
+### Deployment
 
-Access meeting links
+* Frontend: Vercel
+* Backend: Render
 
-Review candidate details and resumes
+---
 
-Submit structured feedback
+## System Architecture
 
-View personal evaluation history
-
-📅 Smart Interview Scheduling
-
-Google Calendar integration
-
-Automatic availability detection
-
-Google Meet link generation
-
-Email notifications for participants
-
-Calendar event synchronization
-
-📝 Candidate Evaluation
-
-Technical Skills Score
-
-Communication Skills Score
-
-Cultural Fit Score
-
-Open-ended feedback comments
-
-🤖 AI Sentiment Analysis
-
-Analyze interviewer comments
-
-Classify sentiment as Positive, Neutral, or Negative
-
-Generate sentiment score
-
-Integrate sentiment into candidate ranking
-
-🏆 Candidate Ranking
-
-Weighted scoring algorithm
-
-Real-time ranking dashboard
-
-Detailed score breakdown
-
-Top candidate highlighting
-
-⚖️ Bias Detection
-
-Detect abnormal scoring patterns
-
-Identify consistently low/high ratings
-
-Statistical anomaly detection
-
-Fair hiring recommendations
-
-🏗️ System Architecture
-Frontend
-
-React.js
-
-Axios
-
-React Router
-
-Context API / Redux
-
-Backend
-
-Python
-
-FastAPI
-
-REST APIs
-
-JWT Authentication
-
-Database
-
-MongoDB Atlas
-
-AI Service
-
-FastAPI
-
-Hugging Face Transformers
-
-External Services
-
+Frontend (React)
+↓
+FastAPI Backend
+↓
+MongoDB Database
+↓
 Google Calendar API
+↓
+Google Meet Integration
 
-Google Meet
+---
 
-SMTP Email Service
+## Live Demo
 
-🛠️ Technology Stack
-CategoryTechnologyFrontendReact.jsBackendSpring BootDatabaseMongoDB AtlasAuthenticationKeycloak, JWTAIFastAPI, Hugging FaceSchedulingGoogle Calendar APIMeetingsGoogle MeetEmailJava Mail SenderDeploymentDocker
+Frontend:
+https://smart-interview-platform-seven.vercel.app
 
-📊 Scoring Formula
-Final Score =(Technical Score × 0.5)+ (Communication Score × 0.3)+ (Cultural Fit Score × 0.1)+ (Sentiment Score × 0.1)
+Backend API:
+https://smart-interview-platform-wvdo.onrender.com
 
-📁 Project Structure
-smart-interview-platform/│├── frontend/│ ├── src/│ ├── components/│ ├── pages/│ ├── services/│ └── context/│├── backend/│ ├── controller/│ ├── service/│ ├── repository/│ ├── model/│ ├── dto/│ ├── security/│ └── config/│├── ai-service/│ ├── app/│ ├── models/│ ├── routes/│ └── requirements.txt│├── docker-compose.yml└── README.md
+API Documentation:
+https://smart-interview-platform-wvdo.onrender.com/docs
 
-🚀 Installation
-Clone Repository
-git clone https://github.com/yourusername/smart-interview-platform.gitcd smart-interview-platform
-Backend Setup
-cd backendmvn clean installmvn spring-boot:run
-Frontend Setup
-cd frontendnpm installnpm start
-AI Service Setup
-cd ai-servicepip install -r requirements.txtuvicorn main:app --reload
+---
 
-🔑 Environment Variables
-Backend
-MONGODB_URI=your_mongodb_uriDB_NAME=interview_schedulerKEYCLOAK_URL=your_keycloak_urlKEYCLOAK_REALM=your_realmKEYCLOAK_CLIENT_ID=your_clientMAIL_USERNAME=your_emailMAIL_PASSWORD=your_passwordGOOGLE_CLIENT_ID=your_client_idGOOGLE_CLIENT_SECRET=your_client_secret
-Frontend
-REACT_APP_API_URL=http://localhost:8080/api
+## Installation
 
-🎯 Future Enhancements
+### Clone Repository
 
-Resume parsing using AI
+```bash
+git clone https://github.com/Jahangeer4002/Smart-Interview-Platform.git
+cd Smart-Interview-Platform
+```
 
-Candidate-job matching engine
+### Backend Setup
 
-Video interview recording analysis
+```bash
+cd backend
 
-Real-time interview analytics
+python -m venv venv
 
-Multi-company support
+# Windows
+venv\Scripts\activate
 
-AI-generated interview questions
+pip install -r requirements.txt
 
-Recruitment performance dashboards
+uvicorn server:app --reload
+```
 
-👥 Team Members
-Team Size: 3
-Roles
+### Frontend Setup
 
-Team Leader & Full Stack Development
+```bash
+cd frontend
 
-Backend & Database Development
+npm install
 
-Frontend & AI Integration
+npm start
+```
 
-📄 License
-This project is developed for educational and recruitment automation purposes.
+---
 
-⭐ If you find this project useful, give it a star on GitHub! ⭐
+## Environment Variables
+
+### Backend (.env)
+
+```env
+MONGO_URL=your_mongodb_connection_string
+DB_NAME=smart_interview_db
+
+JWT_SECRET=your_secret_key
+
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+GOOGLE_REDIRECT_URI=http://localhost:8000/api/oauth/calendar/callback
+
+FRONTEND_URL=http://localhost:3000
+```
+
+### Frontend (.env)
+
+```env
+REACT_APP_BACKEND_URL=http://localhost:8000
+```
+
+---
+
+## API Endpoints
+
+### Authentication
+
+* POST /api/auth/register
+* POST /api/auth/login
+* GET /api/auth/me
+
+### Candidates
+
+* GET /api/candidates
+* POST /api/candidates
+* PUT /api/candidates/{id}
+* DELETE /api/candidates/{id}
+
+### Interviews
+
+* POST /api/interviews/schedule
+* GET /api/interviews
+* DELETE /api/interviews/{id}
+
+### Feedback
+
+* POST /api/feedback
+* GET /api/feedback/candidate/{candidate_id}
+
+### Google Calendar
+
+* GET /api/oauth/calendar/login
+* GET /api/oauth/calendar/callback
+* GET /api/calendar/availability/{interviewer_id}
+
+---
+
+## Project Highlights
+
+* Implemented secure JWT authentication and role-based access control.
+* Integrated Google OAuth 2.0 and Google Calendar APIs.
+* Automated interview scheduling with Google Meet link generation.
+* Built a candidate evaluation and ranking system.
+* Developed a responsive React frontend and FastAPI backend.
+* Deployed the complete application using Vercel and Render.
+
+---
+
+## Future Enhancements
+
+* Email notifications for interview scheduling
+* AI-powered candidate evaluation
+* Resume parsing and analysis
+* Interview analytics dashboard
+* Multi-company support
+* Real-time notifications
+
+---
+
+## Author
+
+Md Jahangeer
+
+GitHub:
+https://github.com/Jahangeer4002
+
+LinkedIn:
+https://www.linkedin.com/in/md-jahangeer-11b69328b/
+
+---
+
+## License
+
+This project is developed for educational and portfolio purposes.
